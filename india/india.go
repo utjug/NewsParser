@@ -58,7 +58,7 @@ func howmany() int{
 
 func GetNews(wg *sync.WaitGroup) []model.News {
 	defer wg.Done()
-	defer fmt.Println("done: india")
+	defer fmt.Println("\ndone: india")
 	var (
 		i int
 		p string
@@ -95,7 +95,7 @@ func GetNews(wg *sync.WaitGroup) []model.News {
 		})
 
 		collector.OnRequest(func(request *colly.Request) {
-			fmt.Println("Keyword: ", keyword, "\nVisiting: ", request.URL.String())
+			fmt.Println( "\nVisiting: ", request.URL.String())
 		})
 
 		collector.Visit("https://timesofindia.indiatimes.com/topic/"+keyword+"/"+p)

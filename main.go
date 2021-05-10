@@ -15,7 +15,7 @@ import (
 	"example.com/parser/model"
 	"example.com/parser/nytimes"
 	"example.com/parser/rt"
-	"example.com/parser/tass"
+	"example.com/parser/kremlin"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -32,11 +32,12 @@ func main() {
 	defer encfile.Close()
 
 	wg:=new(sync.WaitGroup)
-	key.Init()
-	t:=time.Now()
+	key.Init() //Прием ключевой комбинации
+	t:=time.Now() // Начала отсчета парсинга
 
 	AllNews:=make([]model.News, 0)
 
+	// Запуск потоков горутин с парсерами
 	wg.Add(1)
 	go nytimes.GetNews(wg)
 	wg.Add(1)
@@ -56,12 +57,13 @@ func main() {
 	wg.Add(1)
 	go chinapost.GetNews(wg)
 	wg.Add(1)
-	go tass.GetNews(wg)
+	go kremlin.GetNews(wg)
 	wg.Add(1)
 	go rt.GetNews(wg)
 
 	wg.Wait()
 
+	//Заполнение глобального среза
 	//Working:
 	AllNews = append(AllNews, 	nytimes.News...)
 	//AllNews = append(AllNews, 	brazilian.News...)
@@ -72,7 +74,7 @@ func main() {
 	AllNews = append(AllNews,   fr.News...)
 	AllNews = append(AllNews,	euronews.News...)
 	AllNews = append(AllNews,	chinapost.News...)
-	//AllNews = append(AllNews,	tass.News...)
+	AllNews = append(AllNews,	kremlin.News...)
 	AllNews = append(AllNews,	rt.News...)
 
 	//In progress:
@@ -82,7 +84,6 @@ func main() {
 	//AllNews = append(AllNews,     shine.GetNews()...)
 
 	enc:=json.NewEncoder(os.Stdout)
-
 	enc.SetIndent(""," ")
 	enc.Encode(AllNews)
 

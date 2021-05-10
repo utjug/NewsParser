@@ -28,7 +28,7 @@ func getcontent(s string) string{
 
 func GetNews(wg *sync.WaitGroup) []model.News {
 	defer wg.Done()
-	defer fmt.Println("done: ny")
+	defer fmt.Println("\ndone: ny")
 
 	n := model.News{}
 	keyword:=strings.ReplaceAll(key.Keyword, " ", "+")
@@ -40,6 +40,7 @@ func GetNews(wg *sync.WaitGroup) []model.News {
 			n.Headline = element.ChildText("h4")
 			n.URL="https://www.nytimes.com"+element.ChildAttr("a","href")
 			n.Content=getcontent(n.URL)
+			n.Content=strings.ReplaceAll(n.Content, ".", ". ")
 			if len(n.Content)>400{
 				News = append(News, n)
 			}
@@ -47,7 +48,7 @@ func GetNews(wg *sync.WaitGroup) []model.News {
 	})
 
 	collector.OnRequest(func(request *colly.Request) {
-		fmt.Println("Keyword: ", keyword, "\nVisiting: ", request.URL.String())
+		fmt.Println("\nVisiting: ", request.URL.String())
 	})
 	collector.Visit("https://www.nytimes.com/search?dropmab=true&query=" + keyword + "&sort=best")
 

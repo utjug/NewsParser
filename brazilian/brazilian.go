@@ -35,7 +35,7 @@ func getcontent(s string) string{
 
 func GetNews(wg *sync.WaitGroup) []model.News {
 	defer wg.Done()
-	defer fmt.Println("done: braz")
+	defer fmt.Println("\ndone: braz")
 	var (
 		i int
 		//p string
@@ -58,6 +58,8 @@ func GetNews(wg *sync.WaitGroup) []model.News {
 			if strings.Contains(element.Attr("class"), "entry-title") {
 				n.URL = element.ChildAttr("a", "href")
 				n.Content = strings.ReplaceAll(getcontent(n.URL), ". . .To read the full NEWS and much more, Subscribe to our Premium Membership Plan. Already Subscribed? Login Here", "")
+				n.Content = strings.ReplaceAll(n.Content, "\"", "'")
+				n.Content = strings.ReplaceAll(n.Content, ".", ". ")
 				n.Content+="."
 				if len(n.Content)>0{
 					News = append(News, n)
@@ -67,7 +69,7 @@ func GetNews(wg *sync.WaitGroup) []model.News {
 		})
 
 		collector.OnRequest(func(request *colly.Request) {
-			fmt.Println("Keyword: ", keyword, "\nVisiting: ", request.URL.String())
+			fmt.Println("\nVisiting: ", request.URL.String())
 		})
 
 		collector.Visit("https://riotimesonline.com/?s="+keyword)

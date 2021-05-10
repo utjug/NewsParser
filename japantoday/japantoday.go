@@ -44,7 +44,7 @@ func getheadline(s string) string{
 
 func GetNews(wg *sync.WaitGroup) []model.News {
 	defer wg.Done()
-	defer fmt.Println("done: japan")
+	defer fmt.Println("\ndone: japan")
 
 
 	n := model.News{}
@@ -66,7 +66,7 @@ func GetNews(wg *sync.WaitGroup) []model.News {
 	})
 
 	collector.OnRequest(func(request *colly.Request) {
-		fmt.Println("Keyword: ", keyword, "\nVisiting: ", request.URL.String())
+		fmt.Println( "\nVisiting: ", request.URL.String())
 	})
 	collector.Visit("https://japantoday.com/search?keyword=" + keyword)
 

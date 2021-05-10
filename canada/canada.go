@@ -32,7 +32,7 @@ func getcontent(s string) string{
 
 func GetNews(wg *sync.WaitGroup) []model.News {
 	defer wg.Done()
-	defer fmt.Println("done: canada")
+	defer fmt.Println("\ndone: canada")
 	var (
 		//i int
 	)
@@ -59,12 +59,15 @@ func GetNews(wg *sync.WaitGroup) []model.News {
 				n.Content=strings.ReplaceAll(n.Content, "     ", ".")
 				n.Content=strings.ReplaceAll(n.Content, "  READ MORE:.", "")
 				n.Content=strings.ReplaceAll(n.Content, ".", ". ")
-				News = append(News, n)
+				n.Content=strings.ReplaceAll(n.Content, "U. S.", "US")
+				if len(n.Content)>0{
+					News = append(News, n)
+				}
 			}
 		})
 
 		collector.OnRequest(func(request *colly.Request) {
-			fmt.Println("Keyword: ", keyword, "\nVisiting: ", request.URL.String())
+			fmt.Println( "\nVisiting: ", request.URL.String())
 		})
 
 		collector.Visit("https://globalnews.ca/?s="+keyword)

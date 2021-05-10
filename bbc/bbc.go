@@ -60,21 +60,19 @@ func howmany() int{
 			if err != nil {
 				panic(err)
 			}
-			fmt.Printf("Scanned: %d\n", ch)
 			pages=ch
 		}
 	})
 
 	collector.Visit("https://www.bbc.co.uk/search?q="+keyword)
-
-	fmt.Println(pages)
+	//fmt.Println(pages)
 
 	return pages
 }
 
 func GetNews(wg *sync.WaitGroup) []model.News{
 	defer wg.Done()
-	defer fmt.Println("done: bbc")
+	defer fmt.Println("\ndone: bbc")
 	var (
 		i int
 		p string
@@ -99,6 +97,7 @@ func GetNews(wg *sync.WaitGroup) []model.News{
 				if strings.Contains(n.URL, "news"){
 					n.Headline = getheadline(n.URL)
 					n.Content = strings.ReplaceAll(getcontent(n.URL), "\"", "'")
+					n.Content = strings.ReplaceAll(n.Content, ".",". ")
 					if len(n.Content)>0{
 						News = append(News, n)
 					}
@@ -107,7 +106,7 @@ func GetNews(wg *sync.WaitGroup) []model.News{
 		})
 
 		collector.OnRequest(func(request *colly.Request) {
-			fmt.Println("Keyword: ", keyword,"\nVisiting: ", request.URL.String())
+			fmt.Println("\nVisiting: ", request.URL.String())
 		})
 
 		collector.Visit("https://www.bbc.co.uk/search?q=" + keyword + "&page=" + p)

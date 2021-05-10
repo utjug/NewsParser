@@ -1,4 +1,4 @@
-package euronews
+package kremlin
 
 import (
 	"example.com/parser/key"
@@ -15,17 +15,15 @@ var (
 	ch int
 
 )
-
 func getheadline(s string) string{
 	var content string
 
 	collector := colly.NewCollector(
-		colly.AllowedDomains("www.euronews.com","euronews.com"),
+		colly.AllowedDomains("www.en.kremlin.ru","en.kremlin.ru"),
 	)
 	collector.OnHTML(`*`, func(element *colly.HTMLElement) {
-		if strings.Contains(element.Attr("class"), "article-title") {
-			content=element.Text
-			content = strings.ReplaceAll(content, "\n", "")
+		if strings.Contains(element.Attr("class"), "width_limiter") {
+			content=element.ChildText("h1")
 		}
 	})
 	collector.Visit(s)
@@ -37,10 +35,10 @@ func getcontent(s string) string{
 	var content string
 
 	collector := colly.NewCollector(
-		colly.AllowedDomains("www.euronews.com","euronews.com"),
+		colly.AllowedDomains("www.en.kremlin.ru","en.kremlin.ru"),
 	)
 	collector.OnHTML(`*`, func(element *colly.HTMLElement) {
-		if strings.Contains(element.Attr("class"), "js-article-content") {
+		if strings.Contains(element.Attr("class"), "entry-content") {
 			content=element.ChildText("p")
 		}
 	})
@@ -51,33 +49,32 @@ func getcontent(s string) string{
 
 func GetNews(wg *sync.WaitGroup) []model.News {
 	defer wg.Done()
-	defer fmt.Println("\ndone: euronews")
+	defer fmt.Println("\ndone: kremlin")
 
 
 	n := model.News{}
 	keyword:=strings.ReplaceAll(key.Keyword, " ", "+")
 
 	collector := colly.NewCollector(
-		colly.AllowedDomains("www.euronews.com","euronews.com"),
+		colly.AllowedDomains("www.en.kremlin.ru","en.kremlin.ru"),
 	)
 	collector.OnHTML(`*`, func(element *colly.HTMLElement) {
-		if strings.Contains(element.Attr("class"), "qa-article-title") {
-			n.URL = "https://www.euronews.com"+element.ChildAttr("a", "href")
-			n.Content=strings.ReplaceAll(getcontent(n.URL), "\"","'")
-			n.Content=strings.ReplaceAll(n.Content, ".",". ")
-			n.Headline=strings.ReplaceAll(getheadline (n.URL), "    ","")
-			if len(n.Content)>0{
+		if strings.Contains(element.Attr("class"), "hentry__title") {
+			n.URL = "http://www.en.kremlin.ru"+element.ChildAttr("a", "href")
+			n.Content = getcontent(n.URL)
+			n.Content = strings.ReplaceAll(n.Content, "\n", " ")
+			n.Headline = getheadline (n.URL)
+			if n.Content != "" && len(n.Content)<10000{
 				News = append(News, n)
 			}
 		}
 	})
 
 	collector.OnRequest(func(request *colly.Request) {
-		fmt.Println("\nVisiting: ", request.URL.String())
+		fmt.Println( "\nVisiting: ", request.URL.String())
 	})
 
-	collector.Visit("https://www.euronews.com/search?query="+keyword)
+	collector.Visit("http://www.en.kremlin.ru/search?query="+keyword)
 
 	return News
 }
-

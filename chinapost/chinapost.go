@@ -50,7 +50,7 @@ func getcontent(s string) string{
 
 func GetNews(wg *sync.WaitGroup) []model.News {
 	defer wg.Done()
-	defer fmt.Println("done: china")
+	defer fmt.Println("\ndone: china")
 
 
 	n := model.News{}
@@ -75,7 +75,7 @@ func GetNews(wg *sync.WaitGroup) []model.News {
 	})
 
 	collector.OnRequest(func(request *colly.Request) {
-		fmt.Println("Keyword: ", keyword, "\nVisiting: ", request.URL.String())
+		fmt.Println( "\nVisiting: ", request.URL.String())
 	})
 
 	collector.Visit("https://china.timesofnews.com/?s="+keyword)
